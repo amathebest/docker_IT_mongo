@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.bson.Document;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -15,7 +14,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
-import com.mongodb.util.JSON;
 
 import model.Student;
 import repository.StudentRepository;
@@ -25,16 +23,15 @@ public class StudentMongoRepository implements StudentRepository {
 	public static final String STUDENT_COLLECTION_NAME = "student";
 	public static final String SCHOOL_DB_NAME = "school";
 	private MongoCollection<Document> studentCollection;
-	private MongoTemplate mongoTemplate;
 	
 	public StudentMongoRepository(MongoClient client) {
 		studentCollection = client.getDatabase(SCHOOL_DB_NAME).getCollection(STUDENT_COLLECTION_NAME);
 	}
 	
 	public List<Student> findAll() {
-		List<Student> returnList = new ArrayList<Student>();
-		// fuck this
-		return returnList;
+		return StreamSupport.stream(studentCollection.find().spliterator(), false)
+				.map(this::fromDocumentToStudent)
+				.collect(Collectors.toList());
 	}
 
 	private Student fromDocumentToStudent(Document d) {
