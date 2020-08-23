@@ -1,6 +1,9 @@
 package view;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.*;
+
+import java.util.concurrent.TimeUnit;
 
 import org.assertj.swing.core.matcher.JButtonMatcher;
 import org.assertj.swing.edt.GuiActionRunner;
@@ -61,7 +64,9 @@ public class ModelViewControllerIT extends AssertJSwingJUnitTestCase {
 		window.textBox("nameTextBox").enterText("test");
 		window.button(JButtonMatcher.withText("Add")).click();
 		// ...verify that it has been added to the database
-		assertThat(studentRepository.findById("1")).isEqualTo(new Student("1", "test"));
+		await().atMost(5, TimeUnit.SECONDS).untilAsserted(
+			() -> assertThat(studentRepository.findById("1")).isEqualTo(new Student("1", "test"))
+		);
 	}
 
 	@Test
@@ -75,7 +80,9 @@ public class ModelViewControllerIT extends AssertJSwingJUnitTestCase {
 		window.list().selectItem(0);
 		window.button(JButtonMatcher.withText("Delete Selected")).click();
 		// verify that the student has been deleted from the db
-		assertThat(studentRepository.findById("99")).isNull();
+		await().atMost(5, TimeUnit.SECONDS).untilAsserted(
+			() -> assertThat(studentRepository.findById("99")).isNull()
+		);
 	}
 
 }

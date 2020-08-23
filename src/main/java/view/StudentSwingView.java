@@ -21,6 +21,8 @@ import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -132,11 +134,11 @@ public class StudentSwingView extends JFrame implements StudentView {
 		btnAdd = new JButton("Add");
 		btnAdd.setName("addButton");
 		btnAdd.setEnabled(false);
-		btnAdd.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				schoolController.newStudent(new Student(txtId.getText(), txtName.getText()));
-			}
-		});
+		btnAdd.addActionListener(
+			e -> new Thread(
+				() -> schoolController.newStudent(new Student(txtId.getText(), txtName.getText()))
+			).start()
+		);
 		GridBagConstraints gbc_btnAdd = new GridBagConstraints();
 		gbc_btnAdd.insets = new Insets(0, 0, 5, 0);
 		gbc_btnAdd.gridwidth = 2;
@@ -165,11 +167,11 @@ public class StudentSwingView extends JFrame implements StudentView {
 		btnDeleteSelected = new JButton("Delete Selected");
 		btnDeleteSelected.setName("deleteButton");
 		btnDeleteSelected.setEnabled(false);
-		btnDeleteSelected.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				schoolController.deleteStudent(listStudents.getSelectedValue());
-			}
-		});
+		btnDeleteSelected.addActionListener(
+				e -> new Thread(
+					() -> schoolController.deleteStudent(listStudents.getSelectedValue())
+				).start()
+			);
 		GridBagConstraints gbc_btnDeleteSelected = new GridBagConstraints();
 		gbc_btnDeleteSelected.insets = new Insets(0, 0, 5, 0);
 		gbc_btnDeleteSelected.gridwidth = 2;
@@ -195,19 +197,25 @@ public class StudentSwingView extends JFrame implements StudentView {
 
 	@Override
 	public void showError(String message, Student student) {
-		lblErrorMessage.setText(message + ": " + student);
+		SwingUtilities.invokeLater(() -> {
+			lblErrorMessage.setText(message + ": " + student);
+		});
 	}
 
 	@Override
 	public void studentAdded(Student student) {
-		listStudentsModel.addElement(student);
-		resetErrorLabel();
+		SwingUtilities.invokeLater(() -> {
+			listStudentsModel.addElement(student);
+			resetErrorLabel();			
+		});
 	}
 
 	@Override
 	public void studentRemoved(Student student) {
-		listStudentsModel.removeElement(student);
-		resetErrorLabel();
+		SwingUtilities.invokeLater(() -> {
+			listStudentsModel.removeElement(student);
+			resetErrorLabel();
+		});
 	}
 
 	private void resetErrorLabel() {

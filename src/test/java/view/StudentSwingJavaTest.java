@@ -1,9 +1,11 @@
 package view;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.*;
 import static org.mockito.Mockito.verify;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.DefaultListModel;
 
@@ -117,11 +119,11 @@ public class StudentSwingJavaTest extends AssertJSwingJUnitTestCase {
 	@Test
 	public void testStudentAddedShouldAddTheStudentToTheListAndResetTheErrorLabel() {
 		Student student = new Student("1", "test1");
-		GuiActionRunner.execute(
-			() -> studentSwingView.studentAdded(new Student("1", "test1"))
-		);
+		studentSwingView.studentAdded(new Student("1", "test1"));
 		String[] listContents = window.list().contents();
-		assertThat(listContents).containsExactly(student.toString());
+		await().atMost(5, TimeUnit.SECONDS).untilAsserted(
+			() -> assertThat(listContents).containsExactly(student.toString())
+		);
 		window.label("errorLabel").requireText(" ");
 	}
 
@@ -138,13 +140,12 @@ public class StudentSwingJavaTest extends AssertJSwingJUnitTestCase {
 			}
 		);
 		// execute
-		GuiActionRunner.execute(
-			() ->
-			studentSwingView.studentRemoved(new Student("1", "test1"))
-		);
+		studentSwingView.studentRemoved(new Student("1", "test1"));
 		// verify
 		String[] listContents = window.list().contents();
-		assertThat(listContents).containsExactly(student2.toString());
+		await().atMost(5, TimeUnit.SECONDS).untilAsserted(
+			() -> assertThat(listContents).containsExactly(student2.toString())
+		);
 		window.label("errorLabel").requireText(" ");
 	}
 

@@ -1,6 +1,9 @@
 package view;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.*;
+
+import java.util.concurrent.TimeUnit;
 
 import java.net.InetSocketAddress;
 
@@ -85,7 +88,9 @@ public class StudentSwingViewIT extends AssertJSwingJUnitTestCase {
 		window.textBox("idTextBox").enterText("1");
 		window.textBox("nameTextBox").enterText("test");
 		window.button(JButtonMatcher.withText("Add")).click();
-		assertThat(window.list().contents()).containsExactly(new Student("1", "test").toString());
+		await().atMost(5, TimeUnit.SECONDS).untilAsserted(
+			() -> assertThat(window.list().contents()).containsExactly(new Student("1", "test").toString())
+		);
 	}
 	
 	@Test
@@ -94,7 +99,9 @@ public class StudentSwingViewIT extends AssertJSwingJUnitTestCase {
 		window.textBox("idTextBox").enterText("1");
 		window.textBox("nameTextBox").enterText("test");
 		window.button(JButtonMatcher.withText("Add")).click();
-		assertThat(window.list().contents()).isEmpty();
+		await().atMost(5, TimeUnit.SECONDS).untilAsserted(
+			() -> assertThat(window.list().contents()).isEmpty()
+		);
 		window.label("errorLabel").requireText("Already existing student with id 1: " + new Student("1", "existing"));
 	}
 	
@@ -103,7 +110,9 @@ public class StudentSwingViewIT extends AssertJSwingJUnitTestCase {
 		GuiActionRunner.execute(() -> schoolController.newStudent(new Student("1", "toremove")));
 		window.list().selectItem(0);
 		window.button(JButtonMatcher.withText("Delete Selected")).click();
-		assertThat(window.list().contents()).isEmpty();
+		await().atMost(5, TimeUnit.SECONDS).untilAsserted(
+			() -> assertThat(window.list().contents()).isEmpty()
+		);
 	}
 	
 	@Test
@@ -112,7 +121,9 @@ public class StudentSwingViewIT extends AssertJSwingJUnitTestCase {
 		GuiActionRunner.execute(() -> studentSwingView.getListStudentsModel().addElement(student));
 		window.list().selectItem(0);
 		window.button(JButtonMatcher.withText("Delete Selected")).click();
-		assertThat(window.list().contents()).containsExactly(student.toString());
+		await().atMost(5, TimeUnit.SECONDS).untilAsserted(
+			() -> assertThat(window.list().contents()).containsExactly(student.toString())
+		);
 		window.label("errorLabel").requireText("No existing student with id 1: " + student);
 	}
 	
